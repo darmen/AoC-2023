@@ -9,6 +9,7 @@ import kotlin.io.path.readLines
 fun readInput(name: String) = Path("src/$name.txt").readLines()
 
 fun readInput(dayNumber: Int) = readInput("Day${dayNumber.toString().padStart(2, '0')}")
+fun readInput(dayNumber: Int, part: Int) = readInput("Day${dayNumber.toString().padStart(2, '0')}_$part")
 
 /**
  * Converts string to md5 hash.
