@@ -57,13 +57,7 @@ fun main() {
                 }
             }
 
-            var power = 1
-
-            colorsQuantity.values.forEach {
-                power *= it
-            }
-
-            sum += power
+            sum += colorsQuantity.values.reduce { acc, i -> acc * i }
         }
 
         return sum
