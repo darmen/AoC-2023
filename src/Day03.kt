@@ -119,13 +119,6 @@ fun main() {
             }
         }
 
-        //467835
-        println(stars)
-        println(numbers)
-        println(adjacent.distinct())
-
-
-
         return sum
     }
 
