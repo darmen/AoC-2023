@@ -28,7 +28,7 @@ fun findAdjacentNumbers(n: List<N>, coordinates: Pair<Int, Int>): MutableList<N>
     val bottomLeft = n.filter {
         (it.coord.second == coordinates.second + 1) && coordinates.first - 1 in (it.coord.first..(it.n.length + it.coord.first - 1))
     }
-// 16-2 15-1
+
     val bottomRight = n.filter {
         (it.coord.second == coordinates.second + 1) && coordinates.first + 1 in (it.coord.first..(it.n.length + it.coord.first - 1))
     }
@@ -79,7 +79,7 @@ fun main() {
                     continue
                 }
 
-                if (c == '*') {
+                if (!c.isDigit() && c != '.') {
                     stars.add(i to lineNumber)
                     if (n != "") numbers.add(N(n, nStart to lineNumber))
                     n=""
@@ -111,9 +111,58 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return 0
+        val numbers = mutableListOf<N>()
+        val stars = mutableListOf<Pair<Int, Int>>()
+
+        input.forEachIndexed { lineNumber, line ->
+            var n = ""
+            var nStart = 0
+
+            for (i in line.indices) {
+                val c = line[i]
+
+                if (c.isDigit()) {
+                    if (n == "") nStart = i
+                    n = "$n$c"
+                    continue
+                }
+
+                if (c == '*') {
+                    stars.add(i to lineNumber)
+                    if (n != "") numbers.add(N(n, nStart to lineNumber))
+                    n=""
+                    continue
+                }
+
+                if (c == '.') {
+                    if (n != "") numbers.add(N(n, nStart to lineNumber))
+                    n = ""
+                }
+
+
+            }
+
+            if (n != "") numbers.add(N(n, nStart to lineNumber))
+        }
+
+
+        var sum = 0
+        stars.forEach {
+            val result = findAdjacentNumbers(numbers, it).distinct()
+            if (result.count() == 2) {
+                var resM = 1
+
+                result.forEach {
+                    resM *= it.n.toInt()
+                }
+
+                sum += resM
+            }
+        }
+
+        return sum
     }
 
-
     part1(readInput(3, 1)).println()
+    part2(readInput(3, 2)).println()
 }
