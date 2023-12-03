@@ -92,34 +92,22 @@ fun main() {
                 }
 
 
-//                if ((!c.isDigit() && n != "" ) || i == line.length - 1) {
-//                    numbers.add(N(n, i - n.length to lineNumber))
-//                    n = ""
-//                }
             }
 
             if (n != "") numbers.add(N(n, nStart to lineNumber))
-//            if (n != "") numbers.add(N(n, n.length to lineNumber))
         }
 
 
         val adjacent = mutableListOf<N>()
 
-        var sum = 0
         stars.forEach {
             val result = findAdjacentNumbers(numbers, it).distinct()
-            if (result.count() == 2) {
-                var resM = 1
-
-                result.forEach {
-                    resM *= it.n.toInt()
-                }
-
-                sum += resM
-            }
+            adjacent.addAll(result)
         }
 
-        return sum
+        return adjacent.sumOf {
+            it.n.toInt()
+        }
     }
 
     fun part2(input: List<String>): Int {
