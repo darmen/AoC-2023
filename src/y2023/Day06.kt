@@ -4,7 +4,6 @@ import println
 import readInput
 
 fun main() {
-
     data class Race(val holdTime: Long, val moveTime: Long)
 
     fun part1(input: List<String>): Int {
@@ -33,8 +32,21 @@ fun main() {
     fun part2(input: List<String>): Int {
         var result = 1
 
-        val times = input.first().replace(" ","").split(":").last().split(" ").filter { it.isNotEmpty() }.map { it.toLong() }
-        val distances = input.last().replace(" ","").split(":").last().split(" ").filter { it.isNotEmpty() }.map { it.toLong() }
+        val times = input.first()
+            .replace(" ", "")
+            .split(":")
+            .last()
+            .split(" ")
+            .filter { it.isNotEmpty() }
+            .map { it.toLong() }
+
+        val distances = input.last()
+            .replace(" ", "")
+            .split(":")
+            .last()
+            .split(" ")
+            .filter { it.isNotEmpty() }
+            .map { it.toLong() }
 
         for (i in times.indices) {
             var ways = 0
