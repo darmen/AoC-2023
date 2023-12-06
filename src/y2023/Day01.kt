@@ -1,3 +1,8 @@
+package y2023
+
+import println
+import readInput
+
 fun main() {
     fun part1(input: List<String>): Int {
         var sum = 0

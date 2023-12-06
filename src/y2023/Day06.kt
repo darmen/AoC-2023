@@ -1,3 +1,8 @@
+package y2023
+
+import println
+import readInput
+
 fun main() {
 
     data class Race(val holdTime: Long, val moveTime: Long)

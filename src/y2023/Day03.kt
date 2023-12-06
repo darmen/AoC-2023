@@ -1,3 +1,8 @@
+package y2023
+
+import println
+import readInput
+
 data class N(val n: String, val coord: Pair<Int, Int>) {
     override fun equals(other: Any?): Boolean {
         if (other is N) {

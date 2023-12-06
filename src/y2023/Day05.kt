@@ -1,3 +1,7 @@
+package y2023
+
+import println
+import readInput
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.min
 import kotlin.streams.asStream
