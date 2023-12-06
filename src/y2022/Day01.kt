@@ -24,12 +24,27 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        var sum = 0
+        var max = mutableListOf(0, 0, 0)
+        val newInput = mutableListOf<String>()
+        newInput.addAll(input)
+        newInput.add("")
 
+        var elfSum = 0
+        for (i in newInput.indices) {
+            val s = newInput[i]
 
-        return sum
+            if (s == "") {
+                max.add(elfSum)
+                max = max.sortedDescending().take(3).toMutableList()
+                elfSum = 0
+            } else {
+                elfSum += s.toInt()
+            }
+        }
+
+        return max.sum()
     }
 
     part1(readInput(1, 1)).println()
-//    part2(readInput(1, 2)).println()
+    part2(readInput(1, 2)).println()
 }
