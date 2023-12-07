@@ -1,5 +1,10 @@
+package y2023.d7.p1
+
+import readInput
+import println
+
 val strengthByCard = listOf(
-    'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J'
+    'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'
 )
 
 fun distill(s: String): Map<Char, Int> {
@@ -60,40 +65,10 @@ fun processEntry(s: String): Hand {
     return mapToHand(m)
 }
 
-fun makeStronger(source: Entry): Hand {
-    val indexOfSource = Hand.entries.indexOf(source.hand)
-
-    if (indexOfSource == 0) return source.hand
-
-    val d = distill(source.code).toList().sortedByDescending {
-        it.second
-    }.toMap().toMutableMap()
-
-
-    val k = d.filterKeys { it != 'J' }.keys.first()
-    d[k] = d[k]!! + d['J']!!
-    d.remove('J')
-
-    return mapToHand(d)
-}
-
-
 data class Entry(val code: String, val hand: Hand, val bid: Long) : Comparable<Entry> {
     override fun compareTo(other: Entry): Int {
-
-        var myHand = this.hand
-        var otherHand = other.hand
-
-        if (this.code.contains('J')) {
-            myHand = makeStronger(this)
-        }
-
-        if (other.code.contains('J')) {
-            otherHand = makeStronger(other)
-        }
-
-        val myPos = Hand.entries.indexOf(myHand)
-        val otherPos = Hand.entries.indexOf(otherHand)
+        val myPos = Hand.entries.indexOf(this.hand)
+        val otherPos = Hand.entries.indexOf(other.hand)
 
         if (myPos == otherPos) {
 
@@ -131,8 +106,6 @@ enum class Hand {
     FIVE, FOUR, FULL_HOUSE, THREE, TWO_PAIR, ONE_PAIR, HIGH_CARD
 }
 
-val strengthByHand = Hand.entries.toTypedArray()
-
 fun main() {
 
     fun part1(input: List<String>): Long {
@@ -150,40 +123,12 @@ fun main() {
             )
         }
 
-        val sorted = entries.sorted()
-        sorted.forEachIndexed { index, entry ->
+        entries.sorted().forEachIndexed { index, entry ->
             result += entry.bid * (index + 1)
         }
 
         return result
     }
-
-    fun part2(input: List<String>): Long {
-        var result = 0L
-
-        val entries = mutableListOf<Entry>()
-        for (i in input.indices) {
-            val s = input[i]
-
-            val code = s.split(" ").first()
-            val bid = s.split(" ").last().toLong()
-
-            entries.add(
-                Entry(hand = processEntry(code), code = code, bid = bid)
-            )
-        }
-
-        val sorted = entries.sorted()
-        sorted.forEachIndexed { index, entry ->
-            result += entry.bid * (index + 1)
-        }
-
-        return result
-    }
-
-
-
 
     part1(readInput(7, 1)).println()
-    part2(readInput(7, 2)).println()
 }

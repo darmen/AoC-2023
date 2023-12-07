@@ -1,3 +1,8 @@
+package y2023.d7.p2
+
+import readInput
+import println
+
 val strengthByCard = listOf(
     'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J'
 )
@@ -131,32 +136,7 @@ enum class Hand {
     FIVE, FOUR, FULL_HOUSE, THREE, TWO_PAIR, ONE_PAIR, HIGH_CARD
 }
 
-val strengthByHand = Hand.entries.toTypedArray()
-
 fun main() {
-
-    fun part1(input: List<String>): Long {
-        var result = 0L
-
-        val entries = mutableListOf<Entry>()
-        for (i in input.indices) {
-            val s = input[i]
-
-            val code = s.split(" ").first()
-            val bid = s.split(" ").last().toLong()
-
-            entries.add(
-                Entry(hand = processEntry(code), code = code, bid = bid)
-            )
-        }
-
-        val sorted = entries.sorted()
-        sorted.forEachIndexed { index, entry ->
-            result += entry.bid * (index + 1)
-        }
-
-        return result
-    }
 
     fun part2(input: List<String>): Long {
         var result = 0L
@@ -173,17 +153,12 @@ fun main() {
             )
         }
 
-        val sorted = entries.sorted()
-        sorted.forEachIndexed { index, entry ->
+        entries.sorted().forEachIndexed { index, entry ->
             result += entry.bid * (index + 1)
         }
 
         return result
     }
 
-
-
-
-    part1(readInput(7, 1)).println()
     part2(readInput(7, 2)).println()
 }
