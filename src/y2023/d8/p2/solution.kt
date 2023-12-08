@@ -52,7 +52,6 @@ fun calculateLCM(numbers: LongArray): Long {
 fun main() {
     val input = readInput(8, 2)
 
-
     val directions = input.first().toList().map {
         if (it == 'R') Direction.RIGHT else Direction.LEFT
     }
