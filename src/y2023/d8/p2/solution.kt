@@ -2,6 +2,7 @@ package y2023.d8.p2
 
 import java.util.concurrent.atomic.AtomicLongArray
 import readInput
+import toLongArray
 import kotlin.streams.asStream
 
 enum class Direction {
@@ -70,7 +71,6 @@ fun main() {
         key to Pair(rightPart.first(), rightPart.last())
     }
 
-
     val keys = nodes.filterKeys {
         it.endsWith("A")
     }.keys
@@ -82,9 +82,5 @@ fun main() {
         positions.set(k, process(it, directions, nodes))
     }
 
-    val values = LongArray(positions.length()) { index ->
-        positions.get(index)
-    }
-
-    println(calculateLCM(values))
+    println(calculateLCM(positions.toLongArray()))
 }
