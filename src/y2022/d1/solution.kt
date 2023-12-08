@@ -1,4 +1,4 @@
-package y2022
+package y2022.d1
 
 import println
 import readInput
