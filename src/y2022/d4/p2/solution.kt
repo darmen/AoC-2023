@@ -1,4 +1,4 @@
-package y2022.d4.p1
+package y2022.d4.p2
 
 import readInput
 
@@ -13,7 +13,7 @@ fun main() {
         val first = elves[0].split("-").first().toInt()..elves[0].split("-").last().toInt()
         val second = elves[1].split("-").first().toInt()..elves[1].split("-").last().toInt()
 
-        if (first.intersect(second).size == first.count() || first.intersect(second).size == second.count()) {
+        if (first.intersect(second).isNotEmpty()) {
             res++
         }
     }
