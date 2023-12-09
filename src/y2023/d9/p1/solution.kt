@@ -20,9 +20,6 @@ fun main() {
 
 fun process(l: MutableList<Int>): Int {
     if (l.toSet().size == 1) {
-        if (l.first() != l.last()) {
-            println(123)
-        }
         return l.last()
     }
 
