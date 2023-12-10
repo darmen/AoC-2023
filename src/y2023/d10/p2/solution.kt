@@ -100,8 +100,8 @@ fun main() {
     currentX += directionToDelta[direction]!!.first
     currentY += directionToDelta[direction]!!.second
 
-    val edgeCoords = mutableListOf<Pair<Int, Int>>()
-    edgeCoords.add(Pair(currentY, currentX))
+    val connectedPipes = mutableListOf<Pair<Int, Int>>()
+    connectedPipes.add(Pair(currentY, currentX))
 
     var res = 0
     var nextTile: Tile?
@@ -117,42 +117,24 @@ fun main() {
         currentX += newCoords.first
         currentY += newCoords.second
 
-        edgeCoords.add(Pair(currentY, currentX))
+        connectedPipes.add(Pair(currentY, currentX))
 
         direction = newDirection
     }
 
     for (y in map.indices) {
         for (x in map[y].indices) {
-            if (edgeCoords.contains(Pair(y, x))) {
+            if (connectedPipes.contains(Pair(y, x))) {
                 continue
             }
 
             var n = 0
 
-            var cnt = 0
             map[y].take(x).forEachIndexed { index, tile ->
-                if (tile == Tile.VERTICAL && edgeCoords.contains(Pair(y, index))) {
-                    cnt++
+                if (connectedPipes.contains(Pair(y, index)) && listOf(Tile.VERTICAL, Tile.DL, Tile.DR).contains(tile)) {
+                    n++
                 }
             }
-            n += cnt
-            cnt = 0
-
-            map[y].take(x).forEachIndexed { index, tile ->
-                if (tile == Tile.DL && edgeCoords.contains(Pair(y, index))) {
-                    cnt++
-                }
-            }
-            n += cnt
-            cnt = 0
-
-            map[y].take(x).forEachIndexed { index, tile ->
-                if (tile == Tile.DR && edgeCoords.contains(Pair(y, index))) {
-                    cnt++
-                }
-            }
-            n += cnt
 
             if (n > 0 && n % 2 != 0) {
                 res++
