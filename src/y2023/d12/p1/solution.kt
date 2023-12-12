@@ -8,21 +8,16 @@ fun main() {
 
     var res = 0L
 
+    val memo = mutableMapOf<Pair<Int, Int>, List<IntArray>>()
+
     for (i in input.indices) {
         var count = 0L
         val places = input[i].split(" ").first()
         val numbers = input[i].split(" ").last().split(",").map { it.toInt() }
 
-        val maxLen = places.length
-        val numbersLen = numbers.sum()
-        val dotsInitialCount = numbers.size - 1
-        val dots = intArrayOf(0, *(IntArray(dotsInitialCount) { 1 }), 0)
-        val missingDotsNumber = maxLen - numbersLen - dotsInitialCount
+        val acc = distributeDotsRec(places.length - numbers.sum(), numbers.size + 1, memo)
+            .filter { !it.slice(1..it.size - 2).contains(0) }
 
-        val acc = mutableListOf<IntArray>()
-        distributeDotsRec(maxLen - numbersLen, dots.size, dots, 0, acc)
-
-// 1 2 0 1
         for (j in acc.indices) {
             val s = acc[j]
             var t = ""
@@ -44,38 +39,40 @@ fun main() {
             if (c == t.length) {
                 count++
                 println(t)
-//
             }
         }
 
         res += count
-
-//        acc.forEachIndexed { index, ints ->
-//            if (index % 2 == 0) {
-//                s += ".".repeat(ints[index])
-//            } else {
-//                s += numbers[index / 2]
-//            }
-//        }
-
     }
 
     res.println()
 }
 
-fun distributeDotsRec(n: Int, p: Int, distribution: IntArray, currentIndex: Int, acc: MutableList<IntArray>) {
-    if (currentIndex == p) {
-        if (!distribution.slice(1..distribution.size-2).contains(0)) {
-            if (distribution.sum() == n) {
-                acc.add(distribution.copyOf())
-            }
-        }
+fun distributeDotsRec(n: Int, p: Int, memo: MutableMap<Pair<Int, Int>, List<IntArray>>): List<IntArray> {
+    val key = Pair(n, p)
 
-        return
+    if (memo.containsKey(key)) {
+        return memo[key]!!
+    }
+
+    val distributions = mutableListOf<IntArray>()
+
+    // Base case
+    if (p == 0) {
+        if (n == 0) {
+            distributions.add(IntArray(0))
+        }
+        return distributions
     }
 
     for (i in 0..n) {
-        distribution[currentIndex] = i
-        distributeDotsRec(n, p, distribution, currentIndex + 1, acc)
+        val subDistributions = distributeDotsRec(n - i, p - 1, memo)
+        for (subDistribution in subDistributions) {
+            distributions.add(intArrayOf(i) + subDistribution)
+        }
     }
+
+    memo[key] = distributions
+
+    return distributions
 }
