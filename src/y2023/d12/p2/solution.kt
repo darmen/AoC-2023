@@ -10,12 +10,15 @@ fun main() {
 
     var res = 0L
 
-    val memo = mutableMapOf<Pair<Int, Int>, List<IntArray>>()
-
     for (i in input.indices) {
         var count = 0L
-        val places = input[i].split(" ").first()
-        val numbers = input[i].split(" ").last().split(",").map { it.toInt() }
+
+        val places = List(5) { input[i].split(" ").first() }.joinToString(",")
+
+        val numbers = List(5) { input[i].split(" ").last() }
+            .joinToString(",")
+            .split(",")
+            .map { it.toInt() }
 
         val acc = Memo<Pair<Int, Int>, List<IntArray>>::process
             .memoize()
@@ -25,8 +28,6 @@ fun main() {
             .filter {
                 !it.slice(1..it.size - 2).contains(0)
             }
-
-//        distributeDotsRec(places.length - numbers.sum(), numbers.size + 1, memo)
 
         for (j in acc.indices) {
             val s = acc[j]
@@ -77,34 +78,6 @@ fun Memo<Pair<Int, Int>, List<IntArray>>.process(key: Pair<Int, Int>): List<IntA
             distributions.add(intArrayOf(i) + subDistribution)
         }
     }
-
-    return distributions
-}
-
-fun distributeDotsRec(n: Int, p: Int, memo: MutableMap<Pair<Int, Int>, List<IntArray>>): List<IntArray> {
-    val key = Pair(n, p)
-
-    if (memo.containsKey(key)) {
-        return memo[key]!!
-    }
-
-    val distributions = mutableListOf<IntArray>()
-
-    if (p == 0) {
-        if (n == 0) {
-            distributions.add(IntArray(0))
-        }
-        return distributions
-    }
-
-    for (i in 0..n) {
-        val subDistributions = distributeDotsRec(n - i, p - 1, memo)
-        for (subDistribution in subDistributions) {
-            distributions.add(intArrayOf(i) + subDistribution)
-        }
-    }
-
-    memo[key] = distributions
 
     return distributions
 }
