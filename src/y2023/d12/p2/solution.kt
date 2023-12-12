@@ -2,27 +2,29 @@ package y2023.d12.p2
 
 import println
 import readInput
+import utils.Memo
+import utils.memoize
 
 fun main() {
     val input = readInput()
 
     var res = 0L
 
+    val memo = mutableMapOf<Pair<Int, Int>, List<IntArray>>()
+
     for (i in input.indices) {
         var count = 0L
         val places = input[i].split(" ").first()
         val numbers = input[i].split(" ").last().split(",").map { it.toInt() }
 
-        val maxLen = places.length
-        val numbersLen = numbers.sum()
-        val dotsInitialCount = numbers.size - 1
-        val dots = intArrayOf(0, *(IntArray(dotsInitialCount) { 1 }), 0)
-        val missingDotsNumber = maxLen - numbersLen - dotsInitialCount
+        val acc = Memo<Pair<Int, Int>, List<IntArray>>::process
+            .memoize()
+            .invoke(
+                places.length - numbers.sum() to numbers.size + 1
+            )
 
-        val acc = mutableListOf<IntArray>()
-        distributeDotsRec(maxLen - numbersLen, dots.size, dots, 0, acc)
+//        distributeDotsRec(places.length - numbers.sum(), numbers.size + 1, memo)
 
-// 1 2 0 1
         for (j in acc.indices) {
             val s = acc[j]
             var t = ""
@@ -34,51 +36,72 @@ fun main() {
 
 
             var c = 0
-            val tr = List(5){ t }.joinToString("?")
-            val pr = List(5){ places }.joinToString("?")
-            for (l in tr.indices) {
-                val place = if (pr[l] == '?') tr[l] else pr[l]
-                if (place == tr[l]) {
+            for (l in t.indices) {
+                val place = if (places[l] == '?') t[l] else places[l]
+                if (place == t[l]) {
                     c++
                 }
             }
 
-            if (c == tr.length) {
+            if (c == t.length) {
                 count++
-                println(tr)
-                println(pr)
-//
+                println(t)
             }
         }
 
         res += count
-
-//        acc.forEachIndexed { index, ints ->
-//            if (index % 2 == 0) {
-//                s += ".".repeat(ints[index])
-//            } else {
-//                s += numbers[index / 2]
-//            }
-//        }
-
     }
 
     res.println()
 }
 
-fun distributeDotsRec(n: Int, p: Int, distribution: IntArray, currentIndex: Int, acc: MutableList<IntArray>) {
-    if (currentIndex == p) {
-        if (!distribution.slice(1..distribution.size-2).contains(0)) {
-            if (distribution.sum() == n) {
-                acc.add(distribution.copyOf())
-            }
-        }
+fun Memo<Pair<Int, Int>, List<IntArray>>.process(key: Pair<Int, Int>): List<IntArray> {
+    val distributions = mutableListOf<IntArray>()
 
-        return
+    val n = key.first
+    val p = key.second
+
+    if (p == 0) {
+        if (n == 0) {
+            distributions.add(IntArray(0))
+        }
+        return distributions
     }
 
     for (i in 0..n) {
-        distribution[currentIndex] = i
-        distributeDotsRec(n, p, distribution, currentIndex + 1, acc)
+        val subDistributions = recurse(n - 1 to p - 1)
+        for (subDistribution in subDistributions) {
+            distributions.add(intArrayOf(i) + subDistribution)
+        }
     }
+
+    return distributions
+}
+
+fun distributeDotsRec(n: Int, p: Int, memo: MutableMap<Pair<Int, Int>, List<IntArray>>): List<IntArray> {
+    val key = Pair(n, p)
+
+    if (memo.containsKey(key)) {
+        return memo[key]!!
+    }
+
+    val distributions = mutableListOf<IntArray>()
+
+    if (p == 0) {
+        if (n == 0) {
+            distributions.add(IntArray(0))
+        }
+        return distributions
+    }
+
+    for (i in 0..n) {
+        val subDistributions = distributeDotsRec(n - i, p - 1, memo)
+        for (subDistribution in subDistributions) {
+            distributions.add(intArrayOf(i) + subDistribution)
+        }
+    }
+
+    memo[key] = distributions
+
+    return distributions
 }

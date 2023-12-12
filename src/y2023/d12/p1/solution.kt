@@ -57,7 +57,6 @@ fun distributeDotsRec(n: Int, p: Int, memo: MutableMap<Pair<Int, Int>, List<IntA
 
     val distributions = mutableListOf<IntArray>()
 
-    // Base case
     if (p == 0) {
         if (n == 0) {
             distributions.add(IntArray(0))
