@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicLongArray
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
+import kotlin.math.pow
 
 /**
  * Reads lines from the given input txt file.
@@ -31,3 +32,6 @@ fun AtomicLongArray.toLongArray(): LongArray {
 }
 
 fun List<String>.nthColumn(n: Int): String = this.map { it[n] }.joinToString("")
+fun Long.toBigInteger() = BigInteger.valueOf(this)
+fun Int.toBigInteger() = BigInteger.valueOf(toLong())
+infix fun Int.`**`(exponent: Int): Int = toDouble().pow(exponent).toInt()
