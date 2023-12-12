@@ -22,6 +22,9 @@ fun main() {
             .invoke(
                 places.length - numbers.sum() to numbers.size + 1
             )
+            .filter {
+                !it.slice(1..it.size - 2).contains(0)
+            }
 
 //        distributeDotsRec(places.length - numbers.sum(), numbers.size + 1, memo)
 
@@ -69,7 +72,7 @@ fun Memo<Pair<Int, Int>, List<IntArray>>.process(key: Pair<Int, Int>): List<IntA
     }
 
     for (i in 0..n) {
-        val subDistributions = recurse(n - 1 to p - 1)
+        val subDistributions = recurse(n - i to p - 1)
         for (subDistribution in subDistributions) {
             distributions.add(intArrayOf(i) + subDistribution)
         }
