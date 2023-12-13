@@ -3,11 +3,13 @@ import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLongArray
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.io.path.readText
 
 /**
  * Reads lines from the given input txt file.
  */
 fun readInput(name: String = "input") = Path("src/$name.txt").readLines()
+fun readText(name: String = "input") = Path("src/$name.txt").readText()
 
 fun readInput(dayNumber: Int) = readInput("Day${dayNumber.toString().padStart(2, '0')}")
 fun readInput(dayNumber: Int, part: Int) = readInput("Day${dayNumber.toString().padStart(2, '0')}_$part")

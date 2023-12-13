@@ -3,83 +3,57 @@ package y2022.d7.p1
 import java.util.*
 import println
 import readInput
+import kotlin.collections.HashMap
 
 fun main() {
-    val input = readInput()
-
     val sizes = mutableMapOf<String, Int>()
-
+    val tree = mutableMapOf<String, String>()
     var currentDir = "/"
 
-    val tree = mutableMapOf<String, MutableList<String>>(
-        currentDir to mutableListOf()
-    )
+    val input = readInput()
 
-    var latestCommand = "cd"
+    var latestCommand = "CD"
 
-    for (i in 1..<input.size) {
+    for (i in input.indices) {
         val s = input[i]
-
         if (s.isCommand()) {
-            latestCommand = s.split(" ")[1]
-
+            latestCommand = s.extractCommand()
             if (s.isCd()) {
-                var argument = s.extractArgument()
-
+                val argument = s.extractArgument()
                 if (argument == "..") {
-                    if (currentDir == "/") {
-                        argument = "/"
-                    } else {
-                        argument = tree.filter { it.value.contains(currentDir) }.keys.first()
-                    }
+                    if (currentDir != "/") currentDir = tree[currentDir]!!
+                } else {
+                    currentDir = argument
                 }
-
-                if (!tree.containsKey(argument)) tree[argument] = mutableListOf()
-
-                currentDir = argument
             }
 
             continue
         }
 
-        if (latestCommand == "ls") {
+        if (latestCommand == "LS") {
             if (s.isDir()) {
-                tree[currentDir]!!.add(s.split("dir ").last())
-            } else {
-                if (sizes.containsKey(currentDir)) {
-                    sizes[currentDir] = sizes[currentDir]!! + s.getFileSize()
-                } else {
-                    sizes[currentDir] = s.getFileSize()
-                }
+                tree[s.getDirName()] = currentDir
+                continue
             }
-        }
 
-    }
+            if (sizes.containsKey(currentDir)) {
+                sizes[currentDir] = sizes[currentDir]!! + s.getFileSize()
+            } else {
+                sizes[currentDir] = s.getFileSize()
+            }
 
-    var res = 0
-    tree.forEach {
-        val sizeOfFiles = if (sizes.containsKey(it.key)) {
-            sizes[it.key]!!
-        } else 0
+            var p = tree[currentDir]!!
 
-        val size = it.value.sumBy { t ->
-            if (sizes.containsKey(t)) sizes[t]!! else 0
-        } + sizeOfFiles
+            while (p != "/") {
+//                sizes[p] = sizes[p] + s.getFileSize()
+            }
 
-        if (size <= 100000) {
-            res += size
+            // TODO – update the whole tree
         }
     }
 
-    fun getSize(dir: String) {
-        val sizeOfFiles = if (sizes.containsKey(dir)) {
-            sizes[dir]!!
-        } else 0
-
-
-    }
-
-    println(res)
+    tree.println()
+    sizes.println()
 }
 
 
