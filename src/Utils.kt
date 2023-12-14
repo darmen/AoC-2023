@@ -5,6 +5,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.math.pow
+import kotlin.system.measureTimeMillis
 
 /**
  * Reads lines from the given input txt file.
@@ -35,3 +36,9 @@ fun List<String>.nthColumn(n: Int): String = this.map { it[n] }.joinToString("")
 fun Long.toBigInteger() = BigInteger.valueOf(this)
 fun Int.toBigInteger() = BigInteger.valueOf(toLong())
 infix fun Int.`**`(exponent: Int): Int = toDouble().pow(exponent).toInt()
+
+inline fun runMeasure(block: () -> Unit) {
+    measureTimeMillis(block).also {
+        "Execution time: $it ms".println()
+    }
+}

@@ -3,11 +3,12 @@ package y2023.d14.p2
 import nthColumn
 import println
 import readInput
+import runMeasure
 import kotlin.math.abs
 
 val directions = listOf("N", "W", "S", "E")
 
-fun main() {
+fun run() {
     val input = readInput()
     var inp = input
     var res = 0
@@ -134,4 +135,8 @@ fun transpose(matrix: List<String>): List<List<Char>> {
             matrix[row][col]
         }
     }
+}
+
+fun main() {
+    runMeasure { run() }
 }
