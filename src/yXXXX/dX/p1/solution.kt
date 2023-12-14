@@ -4,13 +4,6 @@ import println
 import readInput
 import runMeasure
 
-fun main() {
-    runMeasure {
-        y2023.d16.p1.solve()
-    }
-}
-
-
 fun solve() {
     val input = readInput()
 
@@ -21,4 +14,8 @@ fun solve() {
     }
 
     res.println()
+}
+
+fun main() {
+    runMeasure { solve() }
 }
