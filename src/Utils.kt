@@ -29,3 +29,5 @@ fun Any?.println() = println(this)
 fun AtomicLongArray.toLongArray(): LongArray {
     return LongArray(this.length()) { this[it] }
 }
+
+fun List<String>.nthColumn(n: Int): String = this.map { it[n] }.joinToString("")
