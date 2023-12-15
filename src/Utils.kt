@@ -42,11 +42,3 @@ inline fun runMeasure(block: () -> Unit) {
         "Execution time: $it ms".println()
     }
 }
-
-public inline fun <T> Iterable<T>.productOf(selector: (T) -> UInt): UInt {
-    var product: UInt = 0.toUInt()
-    for (element in this) {
-        product *= selector(element)
-    }
-    return product
-}

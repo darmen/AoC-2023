@@ -1,7 +1,6 @@
 package y2023.d15.p2
 
 import println
-import productOf
 import readInput
 import runMeasure
 
