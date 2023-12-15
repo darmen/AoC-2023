@@ -19,13 +19,8 @@ fun solve() {
         .println()
 }
 
-fun hash(s: String): Long {
-    var res = 0L
-    s.forEach {
-        res += it.code
-        res *= 17
-        res %= 256
+fun hash(s: String): Int {
+    return s.fold(0) { acc, char ->
+        (acc + char.code) * 17 % 256
     }
-
-    return res
 }

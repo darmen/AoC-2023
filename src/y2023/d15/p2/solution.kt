@@ -3,6 +3,7 @@ package y2023.d15.p2
 import println
 import readInput
 import runMeasure
+import y2023.d15.p1.hash
 
 fun main() {
     runMeasure { solve() }
@@ -17,13 +18,10 @@ fun solve() {
 
     input.split(",")
         .forEach { it ->
-            val label = if (it.contains('-')) {
-                it.split('-').first()
-            } else {
-                it.split('=').first()
-            }
+            val label = it.substringBefore(if (it.contains('-')) '-' else '=')
 
             val op = if (it.contains('-')) '-' else '='
+
             val focalLength = if (op == '=') it.split('=').last().toLong() else null
 
             val hash = hash(label)
@@ -70,16 +68,4 @@ fun solve() {
     }
 
     res.println()
-}
-
-fun hash(s: String): Int {
-    var res = 0
-
-    s.forEach {
-        res += it.code
-        res *= 17
-        res %= 256
-    }
-
-    return res
 }
