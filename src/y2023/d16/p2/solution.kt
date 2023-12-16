@@ -25,14 +25,11 @@ fun dive(i: Int, j: Int, d: Direction, input: List<CharArray>, m: List<CharArray
 
         m[cI][cJ] = '#'
 
-//        m.map { it.map { c -> c.toString() }.joinToString(" ") }.joinToString("\n").println()
-//        println("")
-
         val c = input[cI][cJ]
 
         if (c != '.') {
             val ds = reflectionMap[c to cDir]!!
-            if (ds.size > 1) {
+            cDir = if (ds.size > 1) {
                 val delta = deltas[ds.first()]!!
 
                 val nI = cI + delta.second
@@ -40,10 +37,10 @@ fun dive(i: Int, j: Int, d: Direction, input: List<CharArray>, m: List<CharArray
                 val nD = ds.last()
 
                 dive(nI, nJ, ds.first(), input, m)
-                cDir = nD
+                nD
 
             } else {
-                cDir = ds.first()
+                ds.first()
             }
         }
 
