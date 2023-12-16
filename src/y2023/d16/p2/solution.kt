@@ -1,4 +1,4 @@
-package y2023.d16.p1
+package y2023.d16.p2
 
 import println
 import readInput
@@ -55,11 +55,37 @@ fun dive(i: Int, j: Int, d: Direction, input: List<CharArray>, m: List<CharArray
 
 fun solve() {
     val input = readInput().map { it.toCharArray() }
-    val m = input.map { it.copyOf() }
 
-    dive(0, 0, Direction.RIGHT, input, m)
+    val ms = mutableListOf<List<CharArray>>()
 
-    m.sumOf { it.count { c -> c == '#' } }.println()
+
+    for (i in input.indices) {
+        var mi = input.map { it.copyOf() }
+        forks.clear()
+        dive(i, 0, Direction.RIGHT, input, mi)
+        ms.add(mi)
+
+        mi = input.map { it.copyOf() }
+        forks.clear()
+        dive(i, input[0].indices.last, Direction.LEFT, input, mi)
+        ms.add(mi)
+    }
+
+    for (j in input[0].indices) {
+        var mj = input.map { it.copyOf() }
+        forks.clear()
+        dive(0, j, Direction.DOWN, input, mj)
+        ms.add(mj)
+
+        mj = input.map { it.copyOf() }
+        forks.clear()
+        dive(input.indices.last, j, Direction.UP, input, mj)
+        ms.add(mj)
+    }
+
+    ms.maxOf {
+        it.sumOf { l -> l.count { c -> c == '#' } }
+    }.println()
 }
 
 enum class Direction { UP, DOWN, LEFT, RIGHT }

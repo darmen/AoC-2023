@@ -42,3 +42,11 @@ inline fun runMeasure(block: () -> Unit) {
         "Execution time: $it ms".println()
     }
 }
+
+fun String.setCharAt(i: Int, c: Char): String {
+    return if (i in this.indices) {
+        this.toCharArray().also { it[i] = c }.joinToString("")
+    } else {
+        this
+    }
+}
