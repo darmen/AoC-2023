@@ -4,14 +4,13 @@ import println
 import readInput
 import runMeasure
 
-val forks = mutableListOf<Pair<Pair<Int, Int>, Direction>>()
 fun main() {
     runMeasure {
         solve()
     }
 }
 
-fun dive(i: Int, j: Int, d: Direction, input: List<CharArray>, m: List<CharArray>) {
+fun dive(i: Int, j: Int, d: Direction, input: List<CharArray>, m: List<CharArray>, forks: MutableList<Pair<Pair<Int, Int>, Direction>>) {
     var cI = i
     var cJ = j
     var cDir = d
@@ -36,7 +35,7 @@ fun dive(i: Int, j: Int, d: Direction, input: List<CharArray>, m: List<CharArray
                 val nJ = cJ + delta.first
                 val nD = ds.last()
 
-                dive(nI, nJ, ds.first(), input, m)
+                dive(nI, nJ, ds.first(), input, m, forks)
                 nD
 
             } else {
@@ -55,29 +54,39 @@ fun solve() {
 
     val ms = mutableListOf<List<CharArray>>()
 
-
     for (i in input.indices) {
-        var mi = input.map { it.copyOf() }
-        forks.clear()
-        dive(i, 0, Direction.RIGHT, input, mi)
-        ms.add(mi)
+        val pairs = mapOf(
+            i to 0 to Direction.RIGHT,
+            i to input[0].indices.last to Direction.LEFT,
+        )
 
-        mi = input.map { it.copyOf() }
-        forks.clear()
-        dive(i, input[0].indices.last, Direction.LEFT, input, mi)
-        ms.add(mi)
+        pairs.entries.parallelStream().forEach { p ->
+            val m = input.map { it.copyOf() }
+
+            dive(p.key.first, p.key.second, p.value, input, m, mutableListOf())
+
+            ms.add(
+                m
+            )
+        }
     }
 
     for (j in input[0].indices) {
-        var mj = input.map { it.copyOf() }
-        forks.clear()
-        dive(0, j, Direction.DOWN, input, mj)
-        ms.add(mj)
 
-        mj = input.map { it.copyOf() }
-        forks.clear()
-        dive(input.indices.last, j, Direction.UP, input, mj)
-        ms.add(mj)
+        val pairs = mapOf(
+            0 to j to Direction.DOWN,
+            input.indices.last to j to Direction.UP,
+        )
+
+        pairs.entries.parallelStream().forEach { p ->
+            val m = input.map { it.copyOf() }
+
+            dive(p.key.first, p.key.second, p.value, input, m, mutableListOf())
+
+            ms.add(
+                m
+            )
+        }
     }
 
     ms.maxOf {
