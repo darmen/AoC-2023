@@ -50,3 +50,17 @@ fun String.setCharAt(i: Int, c: Char): String {
         this
     }
 }
+
+fun <T> Sequence<T>.takeNextWhile(predicate: (T) -> Boolean): Sequence<T> = Sequence {
+    val iter = iterator()
+    var hasNext = iter.hasNext()
+    object : Iterator<T> {
+        override fun hasNext() = hasNext
+        override fun next(): T {
+            val n = iter.next()
+            return n.also {
+                hasNext = iter.hasNext() && predicate(it)
+            }
+        }
+    }
+}
