@@ -1,6 +1,8 @@
+import java.io.Serializable
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLongArray
+import kotlin.Pair
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
@@ -64,3 +66,15 @@ fun <T> Sequence<T>.takeNextWhile(predicate: (T) -> Boolean): Sequence<T> = Sequ
         }
     }
 }
+
+data class Triple<out A, out B, out C>(
+    val first: A,
+    val second: B,
+    val third: C
+) : Serializable {
+    override fun toString(): String = "($first, $second, $third)"
+}
+
+typealias Point = Pair<Int, Int>
+typealias PointLong = Pair<Long, Long>
+typealias IntList = List<Int>
