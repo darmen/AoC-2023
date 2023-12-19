@@ -51,28 +51,28 @@ fun solve() {
 
     val visited = mutableSetOf<Condition>()
     val stack = Stack<String>()
-    stack.push("in" )
+    stack.push("in")
 
-    while (stack.isNotEmpty()) {
-        val item = stack.peek()
-        for (c in input[item]!!) {
+    wh@ while (stack.isNotEmpty()) {
+        val level = stack.peek()
+        fo@ for (c in input[level]!!) {
             if (c is NormalCondition && c.target == "A") {
                 // inc
-                continue
+                continue@fo
             }
 
             if (c is Pointer && c.target == "A") {
                 // inc
-                continue
+                continue@fo
             }
 
 
             if (c is NormalCondition && c.target == "R") {
-                continue
+                continue@fo
             }
 
             if (c is Pointer && c.target == "R") {
-                continue
+                continue@fo
             }
 
             if (c in visited) {
@@ -88,7 +88,7 @@ fun solve() {
                 }
             )
 
-            break
+            break@fo
         }
     }
 
