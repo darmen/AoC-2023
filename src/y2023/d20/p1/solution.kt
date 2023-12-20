@@ -22,8 +22,6 @@ fun solve() {
 
         val (name, dest) = l.split(" -> ")
 
-//        if (modules.containsKey(name)) continue
-
         val conns = dest.split(", ")
 
         if (name.startsWith('%')) {
@@ -69,56 +67,43 @@ fun solve() {
 
     for (m in modules.values) {
         if (m !is Sink) {
-            m.output = outs[m.name]!!.map { modules[it]!! }.toMutableList()
+            m.connected = outs[m.name]!!.map { modules[it]!! }.toMutableList()
         }
     }
 
-//    fun ff(module: Module, pulse: Pulse): Pair<Int, Int> {
-//        var lowPulses = 0
-//        var highPulses = 0
-//
-//        val modulesTouched = mutableListOf<Module>()
-//
-//        for (output in outs[module.name]!!) {
-//            val destination = modules[output]!!
-//            if (module is Broadcaster) {
-//                if (pulse.type == PulseType.LOW) lowPulses++
-//                if (pulse.type == PulseType.HIGH) highPulses++
-//
-//                destination.receive(module, pulse)
-//                println("${module.name} ${pulse.type}-> ${destination.name}")
-//            } else {
-//                if (pulse.type == PulseType.LOW) lowPulses++
-//                if (pulse.type == PulseType.HIGH) highPulses++
-//
-//                destination.receive(module, Pulse(pulse.type))
-//
-//                println("${module.name} ${pulse.type}-> ${destination.name}")
-//            }
-//
-//            modulesTouched.add(destination)
-//        }
-//
-//        for (next in modulesTouched) {
-//            if (next is FlipFlop && pulse.type == PulseType.HIGH) {
-//                return lowPulses to highPulses
-//            }
-//            val r = ff(next, next.produce())
-//            lowPulses += r.first
-//            highPulses += r.second
-//        }
-//
-//        return lowPulses to highPulses
-//    }
+    val counts = mutableMapOf(
+        PulseType.LOW to 1000,
+        PulseType.HIGH to 0
+    )
 
-    val pulse = Pulse(PulseType.LOW)
+    val m = modules["broadcaster"]!!
+    for (k in 1..1000) {
+        val queue = mutableListOf(m to Pulse(PulseType.LOW))
+        var i = 0
+        while (i < queue.size) {
+            val item = queue[i]
+            for (c in item.first.connected) {
+                counts[item.second.type] = counts[item.second.type]!! + 1
 
-    val pulses = mutableListOf(pulse)
+            println("${item.first.name} ${item.second.type} ${c.name}")
 
-    val broadcaster = modules["broadcaster"]!!
-    pulses += broadcaster.process(pulse)
+                val np =
+                    (if (c is Conjunction) c.function(item.first, item.second)
+                    else c.function(item.second)) ?: continue
 
-    pulses.println()
+                queue.add(c to np)
+            }
+
+            i++
+        }
+
+        println("")
+    }
+
+    counts.mapValues { it.value }
+        .values
+        .fold(1) { acc, el -> acc * el }
+        .println()
 
 //    val res = ff(source, pulse)
 
@@ -136,56 +121,22 @@ enum class PulseType {
 }
 
 class Broadcaster : Module("broadcaster", listOf()) {
-    override fun ack(source: Module, pulse: Pulse) {
-        return
-    }
-
-    override fun produce(source: Module, pulse: Pulse): Pulse? = pulse
-    override fun producable(pulse: Pulse): Boolean {
-        return true
-    }
+    override fun function(pulse: Pulse): Pulse? = pulse
 }
 
 class Sink(override val name: String) : Module(name, listOf()) {
-    override fun ack(source: Module, pulse: Pulse) {
-        return
-    }
-
-    override fun produce(source: Module, pulse: Pulse): Pulse? = pulse
-    override fun producable(pulse: Pulse): Boolean = false
+    override fun function(pulse: Pulse): Pulse? = pulse
 }
 
 abstract class Module(
-    open val name: String,
-    open var output: List<Module> = listOf()
+    open val name: String, open var connected: List<Module> = listOf()
 ) {
-    abstract fun ack(source: Module, pulse: Pulse)
-    abstract fun produce(source: Module, pulse: Pulse): Pulse?
-    abstract fun producable(pulse: Pulse): Boolean
-
-    open fun process(pulse: Pulse): List<Pulse> {
-        val pulseToBeSent = this.produce(this, pulse) ?: return listOf()
-
-        val pulseReturned = mutableListOf(pulseToBeSent)
-
-        this.output.forEach {
-            print("$name ${pulseToBeSent.type} -> ${it.name}")
-            println("")
-            it.ack(this, pulseToBeSent)
-        }
-
-        this.output.forEach {
-            pulseReturned += it.process(pulseToBeSent)
-        }
-
-        return pulseReturned
-    }
+    abstract fun function(pulse: Pulse): Pulse?
 }
 
 data class FlipFlop(
-    override val name: String,
-    override var output: List<Module> = listOf()
-) : Module(name, output) {
+    override val name: String, override var connected: List<Module> = listOf()
+) : Module(name, connected) {
 
     enum class State {
         ON, OFF
@@ -197,44 +148,51 @@ data class FlipFlop(
         state = if (state == State.OFF) State.ON else State.OFF
     }
 
-    override fun ack(source: Module, pulse: Pulse) {
+    override fun function(pulse: Pulse): Pulse? {
         if (pulse.type == PulseType.HIGH) {
-            return
+            return null
         }
 
         toggle()
-    }
 
-    override fun produce(source: Module, pulse: Pulse): Pulse? {
         return when (state) {
             State.ON -> Pulse(PulseType.HIGH)
             State.OFF -> Pulse(PulseType.LOW)
         }
     }
 
-    override fun producable(pulse: Pulse): Boolean {
-        return pulse.type == PulseType.LOW
-    }
 }
 
 class Conjunction(
     override val name: String,
-    override var output: List<Module> = listOf(),
-    var input: MutableList<Module> = mutableListOf()
-) : Module(name, output) {
-    val cache = input.associateWith { PulseType.LOW }.toMutableMap()
+    override var connected: List<Module> = listOf(),
+    input: MutableList<Module> = mutableListOf()
+) : Module(name, connected) {
+    private var cache = mutableMapOf<String, PulseType>()
 
-    override fun ack(source: Module, pulse: Pulse) {
-        cache[source] = pulse.type
+    var input = input
+        set(value) {
+            field = value
+            cache = input.associate { it.name to PulseType.LOW }.toMutableMap()
+        }
+
+    fun function(source: Module, pulse: Pulse): Pulse? {
+        cache[source.name] = pulse.type
+
+        val type = if (cache.values.distinct().count() == 1) {
+            if (cache.values.first() === PulseType.HIGH) {
+                PulseType.LOW
+            } else {
+                PulseType.HIGH
+            }
+        } else {
+            PulseType.HIGH
+        }
+
+        return Pulse(type)
     }
 
-    override fun produce(source: Module, pulse: Pulse): Pulse? {
-        return Pulse(
-            if (cache.values.all { it == PulseType.HIGH }) PulseType.LOW else PulseType.HIGH
-        )
-    }
-
-    override fun producable(pulse: Pulse): Boolean {
-        return true
+    override fun function(pulse: Pulse): Pulse? {
+        TODO("Not yet implemented")
     }
 }
