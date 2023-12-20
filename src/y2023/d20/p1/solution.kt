@@ -7,11 +7,7 @@ import runMeasure
 fun solve() {
     val input = readInput()
 
-    var res = 0L
-
     val modules = mutableMapOf<String, Module>()
-
-    val order = mutableMapOf<Module, List<Module>>()
 
     val outs = mutableMapOf<String, List<String>>()
 
@@ -19,12 +15,14 @@ fun solve() {
         "broadcaster" to mutableListOf()
     )
 
+    val sinks = mutableListOf<Sink>()
+
     for (l in input) {
         if (l == "broadcaster") continue
 
         val (name, dest) = l.split(" -> ")
 
-        if (modules.containsKey(name)) continue
+//        if (modules.containsKey(name)) continue
 
         val conns = dest.split(", ")
 
@@ -42,25 +40,16 @@ fun solve() {
             modules[name] = Broadcaster()
             outs[name] = conns
         }
+
+        sinks.addAll(conns.map { Sink(it) })
+
     }
 
-    for (l in input) {
-        val (left, rest) = l.split(" -> ")
-        val dest = rest.split(", ")
-
-        val name = if (left == "broadcaster") left else left.drop(1)
-
-        order[modules[name]!!] = dest.map { modules[it]!! }
+    for (sink in sinks.filter { !modules.keys.contains(it.name) }) {
+        modules[sink.name] = sink
     }
+    println()
 
-
-    for (k in 1..1) {
-        for ((m, dests) in order) {
-            if (m is Broadcaster) {
-
-            }
-        }
-    }
 
     outs.forEach { out ->
         out.value.forEach {
@@ -72,110 +61,180 @@ fun solve() {
         }
     }
 
-    for ((name, module) in modules) {
-        module.input = ins[name]!!.map {
-            modules[it]!!
+    for (m in modules.values) {
+        if (m is Conjunction) {
+            m.input = ins[m.name]!!.map { modules[it]!! }.toMutableList()
         }
     }
 
-    var cn = listOf("broadcaster")
-    var cm = modules.filterKeys { it in cn }.values
-
-    fun f(pulse: Pulse, dest: List<Module>): Pair<Int, Int> {
-        val pulses = dest.map {
-            it.process(pulse)
+    for (m in modules.values) {
+        if (m !is Sink) {
+            m.output = outs[m.name]!!.map { modules[it]!! }.toMutableList()
         }
-
-        val nextModules = outs[pulse.generatedBy.name]!!.map { modules[it]!! }
-
-        nextModules.forEachIndexed { index, module ->
-
-        }
-
-        println(1)
-        return 1 to 1
     }
 
-
-    val button = Button()
-//    f(Pulse(PulseType.LOW, button), listOf(modules["broadcaster"]!!))
-
-
-    val br = modules["broadcaster"]!!
-    var pulse = br.process(Pulse(PulseType.LOW, Button()))
-
-//    while (pulse.type != PulseType.NONE) {
-//        val nM = outs[pulse.generatedBy.name]!!
-//        nM.forEach { pulse = modules[it]!!.process(pulse) }
-//        println(1)
+//    fun ff(module: Module, pulse: Pulse): Pair<Int, Int> {
+//        var lowPulses = 0
+//        var highPulses = 0
+//
+//        val modulesTouched = mutableListOf<Module>()
+//
+//        for (output in outs[module.name]!!) {
+//            val destination = modules[output]!!
+//            if (module is Broadcaster) {
+//                if (pulse.type == PulseType.LOW) lowPulses++
+//                if (pulse.type == PulseType.HIGH) highPulses++
+//
+//                destination.receive(module, pulse)
+//                println("${module.name} ${pulse.type}-> ${destination.name}")
+//            } else {
+//                if (pulse.type == PulseType.LOW) lowPulses++
+//                if (pulse.type == PulseType.HIGH) highPulses++
+//
+//                destination.receive(module, Pulse(pulse.type))
+//
+//                println("${module.name} ${pulse.type}-> ${destination.name}")
+//            }
+//
+//            modulesTouched.add(destination)
+//        }
+//
+//        for (next in modulesTouched) {
+//            if (next is FlipFlop && pulse.type == PulseType.HIGH) {
+//                return lowPulses to highPulses
+//            }
+//            val r = ff(next, next.produce())
+//            lowPulses += r.first
+//            highPulses += r.second
+//        }
+//
+//        return lowPulses to highPulses
 //    }
 
-    res.println()
+    val pulse = Pulse(PulseType.LOW)
+
+    val pulses = mutableListOf(pulse)
+
+    val broadcaster = modules["broadcaster"]!!
+    pulses += broadcaster.process(pulse)
+
+    pulses.println()
+
+//    val res = ff(source, pulse)
+
+//    ((res.first + 1) * res.second * 1_000_000).println()
 }
 
 fun main() {
     runMeasure { solve() }
 }
 
-data class Pulse(var type: PulseType, var generatedBy: Module)
+data class Pulse(var type: PulseType)
 
 enum class PulseType {
-    HIGH, LOW, NONE
+    HIGH, LOW
 }
 
-class Button : Module("button", listOf()) {
-    override fun process(pulse: Pulse): Pulse {
-        return Pulse(PulseType.LOW, this)
+class Broadcaster : Module("broadcaster", listOf()) {
+    override fun ack(source: Module, pulse: Pulse) {
+        return
+    }
+
+    override fun produce(source: Module, pulse: Pulse): Pulse? = pulse
+    override fun producable(pulse: Pulse): Boolean {
+        return true
     }
 }
 
-abstract class Module(open val name: String, open var input: List<Module> = listOf()) {
-    abstract fun process(pulse: Pulse): Pulse
+class Sink(override val name: String) : Module(name, listOf()) {
+    override fun ack(source: Module, pulse: Pulse) {
+        return
+    }
+
+    override fun produce(source: Module, pulse: Pulse): Pulse? = pulse
+    override fun producable(pulse: Pulse): Boolean = false
 }
 
-data class Broadcaster(override var input: List<Module> = listOf()) : Module("broadcaster", input) {
-    override fun process(pulse: Pulse): Pulse {
-        pulse.generatedBy = this
-        return pulse
+abstract class Module(
+    open val name: String,
+    open var output: List<Module> = listOf()
+) {
+    abstract fun ack(source: Module, pulse: Pulse)
+    abstract fun produce(source: Module, pulse: Pulse): Pulse?
+    abstract fun producable(pulse: Pulse): Boolean
+
+    open fun process(pulse: Pulse): List<Pulse> {
+        val pulseToBeSent = this.produce(this, pulse) ?: return listOf()
+
+        val pulseReturned = mutableListOf(pulseToBeSent)
+
+        this.output.forEach {
+            print("$name ${pulseToBeSent.type} -> ${it.name}")
+            println("")
+            it.ack(this, pulseToBeSent)
+        }
+
+        this.output.forEach {
+            pulseReturned += it.process(pulseToBeSent)
+        }
+
+        return pulseReturned
     }
 }
 
-data class FlipFlop(override val name: String, override var input: List<Module> = listOf()) : Module(name, input) {
+data class FlipFlop(
+    override val name: String,
+    override var output: List<Module> = listOf()
+) : Module(name, output) {
 
-    private var state = false
+    enum class State {
+        ON, OFF
+    }
+
+    private var state = State.OFF
 
     private fun toggle() {
-        state = !state
+        state = if (state == State.OFF) State.ON else State.OFF
     }
 
-    override fun process(pulse: Pulse): Pulse {
-        pulse.generatedBy = this
+    override fun ack(source: Module, pulse: Pulse) {
         if (pulse.type == PulseType.HIGH) {
-            pulse.type = PulseType.NONE
-            return pulse
+            return
         }
 
-        if (!state) {
-            toggle()
-            pulse.type = PulseType.HIGH
-        } else {
-            toggle()
-            pulse.type = PulseType.LOW
-        }
+        toggle()
+    }
 
-        return pulse
+    override fun produce(source: Module, pulse: Pulse): Pulse? {
+        return when (state) {
+            State.ON -> Pulse(PulseType.HIGH)
+            State.OFF -> Pulse(PulseType.LOW)
+        }
+    }
+
+    override fun producable(pulse: Pulse): Boolean {
+        return pulse.type == PulseType.LOW
     }
 }
 
-class Conjunction(override val name: String, override var input: List<Module> = listOf()) : Module(name, input) {
+class Conjunction(
+    override val name: String,
+    override var output: List<Module> = listOf(),
+    var input: MutableList<Module> = mutableListOf()
+) : Module(name, output) {
+    val cache = input.associateWith { PulseType.LOW }.toMutableMap()
 
-    private var types: MutableMap<Module, PulseType> = input.associateWith { PulseType.LOW }.toMutableMap()
+    override fun ack(source: Module, pulse: Pulse) {
+        cache[source] = pulse.type
+    }
 
-    override fun process(pulse: Pulse): Pulse {
-        pulse.generatedBy = this
-        types[pulse.generatedBy] = pulse.type
-        pulse.type = if (types.values.all { it == PulseType.HIGH }) PulseType.LOW else PulseType.HIGH
+    override fun produce(source: Module, pulse: Pulse): Pulse? {
+        return Pulse(
+            if (cache.values.all { it == PulseType.HIGH }) PulseType.LOW else PulseType.HIGH
+        )
+    }
 
-        return pulse
+    override fun producable(pulse: Pulse): Boolean {
+        return true
     }
 }
