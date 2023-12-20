@@ -85,7 +85,7 @@ fun solve() {
             for (c in item.first.connected) {
                 counts[item.second.type] = counts[item.second.type]!! + 1
 
-            println("${item.first.name} ${item.second.type} ${c.name}")
+//                println("${item.first.name} ${item.second.type} ${c.name}")
 
                 val np =
                     (if (c is Conjunction) c.function(item.first, item.second)
@@ -96,8 +96,6 @@ fun solve() {
 
             i++
         }
-
-        println("")
     }
 
     counts.mapValues { it.value }
