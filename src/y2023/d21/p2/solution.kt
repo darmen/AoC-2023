@@ -4,10 +4,11 @@ import println
 import readInput
 import runMeasure
 import utils.duplicate
+import kotlin.math.ceil
 
 // Sketch – https://virtual-graph-paper.com/NzYxZWVhMTAwYzg4
-fun draw(start: Pair<Int, Int>, input: List<CharArray>, maxSteps: Int = 65): Int {
-    val centers = mutableListOf(start)
+fun draw(input: List<CharArray>, maxSteps: Int = 65): Int {
+    val centers = mutableListOf((input.size - 1) / 2 to (input[0].size - 1) / 2)
 
     fun rec(input: List<CharArray>, centers: List<Pair<Int, Int>>): Pair<List<CharArray>, List<Pair<Int, Int>>> {
         val newCenters = mutableListOf<Pair<Int, Int>>()
@@ -30,8 +31,8 @@ fun draw(start: Pair<Int, Int>, input: List<CharArray>, maxSteps: Int = 65): Int
             }
         }
 
-        inputResult.map { it.joinToString("") }.joinToString("\n").println()
-        println("")
+//        inputResult.map { it.joinToString("") }.joinToString("\n").println()
+//        println("")
 
         return inputResult to newCenters
     }
@@ -45,52 +46,32 @@ fun draw(start: Pair<Int, Int>, input: List<CharArray>, maxSteps: Int = 65): Int
 
 
 //    println(rr.second.size)
-//    println("")
+    println("")
+    return rr.first.fold(0) { acc, chars -> acc + chars.count { it == 'O' } }
 
-    return rr.second.size
+//    return rr.second.size
 }
 
+/**
+ * @see "y20023/d21/graph.png" for my visualized thoughts
+ */
 fun solve() {
     val input = readInput().map { it.toCharArray() }
-    val r = (input.size - 1)
-    val c = input[0].size - 1
 
-    val startLocations = mapOf(
-//        "c" to (r / 2 to c / 2),
-//        "b" to (r to c / 2),
-//        "r" to (r / 2 to c),
-//        "t" to (0 to c / 2),
-//        "l" to (r / 2 to 0),
-        "tr" to (0 to c),
-        "tl" to (0 to 0),
-        "br" to (r to c),
-        "bl" to (r to 0),
-    )
+    val countInSquare = draw(input, 130)
+    val countInDiamondPile = draw(input, 64)
+    val countInCornersTotal = countInSquare - countInDiamondPile
+    val countPerCorner = countInCornersTotal / 4
 
-    val gardenPlots = mutableMapOf<String, Int>()
+    val desiredSteps = 26501365L
+    val totalSquares = desiredSteps / 131
+    val evenSquares = totalSquares * totalSquares
+    val oddSquares = (totalSquares + 1) * (totalSquares + 1)
 
-    for (l in startLocations) {
-        gardenPlots[l.key] = draw(l.value, input)
-    }
+    val evenCorners = 2 * totalSquares
+    val oddCorners = 2 * (totalSquares + 1)
 
-    val k = 26501365 / 65
-
-    val nSquares = k + 2 * (1..k - 2 step 2).sum()
-
-    val maxSteps = 26501365 % 65
-
-    for (l in startLocations) {
-        gardenPlots[l.key] = gardenPlots[l.key]!! + draw(l.value, input, maxSteps)
-    }
-
-    val totalGardenPlots = (nSquares * gardenPlots["c"]!! +
-            4 * gardenPlots["tr"]!! +
-            4 * gardenPlots["tl"]!! +
-            4 * gardenPlots["bl"]!! +
-            4 * gardenPlots["br"]!!)
-
-
-    totalGardenPlots.println()
+    println(countInSquare * evenSquares + countInSquare * oddSquares + evenCorners * countPerCorner - oddCorners * countPerCorner + countInDiamondPile)
 }
 
 fun main() {

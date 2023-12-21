@@ -5,3 +5,4 @@ fun List<String>.toIntMatrix() =
 
 fun Array<IntArray>.duplicate() = this.map { it.copyOf() }
 fun List<CharArray>.duplicate() = this.map { it.copyOf() }
+
