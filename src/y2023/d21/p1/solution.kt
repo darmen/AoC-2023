@@ -1,17 +1,13 @@
 package y2023.d21.p1
 
-import println
 import readInput
 import runMeasure
 import utils.duplicate
-import utils.toIntMatrix
 
 fun solve() {
     val input = readInput().map { it.toCharArray() }
 
-    var res = 0L
-
-    var centers = mutableListOf<Pair<Int, Int>>()
+    val centers = mutableListOf<Pair<Int, Int>>()
 
     for (i in input.indices) {
         val s = input[i]
@@ -21,10 +17,6 @@ fun solve() {
             break
         }
     }
-
-    var i = 0
-
-    var steps = 0
 
 
     fun rec(input: List<CharArray>, centers: List<Pair<Int, Int>>): Pair<List<CharArray>, List<Pair<Int, Int>>> {
@@ -48,8 +40,8 @@ fun solve() {
             }
         }
 
-        inputResult.map { it.joinToString(" ") }.joinToString("\n").println()
-        println("")
+//        inputResult.map { it.joinToString(" ") }.joinToString("\n").println()
+//        println("")
 
         return inputResult to newCenters
     }
@@ -61,35 +53,6 @@ fun solve() {
     }
 
     println(rr.first.fold(0) { acc, chars -> acc + chars.count { it == 'O' } })
-
-    println("")
-
-//    while (i < centers.size) {
-//        val c = centers[i]
-//        input[c.first][c.second] = '.'
-//
-//        for (d in Direction.entries) {
-//            val (nr, nc) = c.first + d.delta.first to c.second + d.delta.second
-//
-//            if ((nr < 0 || nr > input.size - 1) || (nc < 0 || nc > input[0].size - 1)) continue
-//            if (input[nr][nc] == '#') continue
-//
-//            input[nr][nc] = 'O'
-//
-//            centers.add(nr to nc)
-//        }
-//
-//        steps++
-////            input[c.first][c.second] = '.'
-//        input.map { it.joinToString(" ") }.joinToString("\n").println()
-//        println(input.fold(0) { acc, chars -> acc + chars.count { it == 'O' } })
-//        println(steps)
-//        println("")
-//
-//        i++
-//    }
-
-    res.println()
 }
 
 fun main() {
