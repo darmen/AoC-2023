@@ -1,35 +1,13 @@
 package y2023.d21.p2
 
-import java.lang.Math.pow
 import println
 import readInput
 import runMeasure
 import utils.duplicate
-import utils.toIntMatrix
-import kotlin.math.pow
 
-fun solve() {
-    val input = readInput().map { it.toCharArray() }
-
-    var res = 0L
-
-    var centers = mutableListOf<Pair<Int, Int>>(
-        (input.size - 1) / 2 to (input[0].size - 1) / 2
-    )
-
-//    for (i in input.indices) {
-//        val s = input[i]
-//
-//        if (s.contains('S')) {
-//            centers.add(i to s.indexOf('S'))
-//            break
-//        }
-//    }
-
-    var i = 0
-
-    var steps = 0
-
+// Sketch – https://virtual-graph-paper.com/NzYxZWVhMTAwYzg4
+fun draw(start: Pair<Int, Int>, input: List<CharArray>, maxSteps: Int = 65): Int {
+    val centers = mutableListOf(start)
 
     fun rec(input: List<CharArray>, centers: List<Pair<Int, Int>>): Pair<List<CharArray>, List<Pair<Int, Int>>> {
         val newCenters = mutableListOf<Pair<Int, Int>>()
@@ -52,7 +30,7 @@ fun solve() {
             }
         }
 
-        inputResult.map { it.joinToString(" ") }.joinToString("\n").println()
+        inputResult.map { it.joinToString("") }.joinToString("\n").println()
         println("")
 
         return inputResult to newCenters
@@ -61,40 +39,58 @@ fun solve() {
     var rr = input to centers.toList()
 
 
-    for (j in 1..2.toDouble().pow(6.toDouble()).toLong()) {
+    for (j in 1..maxSteps) {
         rr = rec(rr.first, rr.second)
     }
 
-    println(rr.second.size)
 
-    println("")
+//    println(rr.second.size)
+//    println("")
 
-//    while (i < centers.size) {
-//        val c = centers[i]
-//        input[c.first][c.second] = '.'
-//
-//        for (d in Direction.entries) {
-//            val (nr, nc) = c.first + d.delta.first to c.second + d.delta.second
-//
-//            if ((nr < 0 || nr > input.size - 1) || (nc < 0 || nc > input[0].size - 1)) continue
-//            if (input[nr][nc] == '#') continue
-//
-//            input[nr][nc] = 'O'
-//
-//            centers.add(nr to nc)
-//        }
-//
-//        steps++
-////            input[c.first][c.second] = '.'
-//        input.map { it.joinToString(" ") }.joinToString("\n").println()
-//        println(input.fold(0) { acc, chars -> acc + chars.count { it == 'O' } })
-//        println(steps)
-//        println("")
-//
-//        i++
-//    }
+    return rr.second.size
+}
 
-    res.println()
+fun solve() {
+    val input = readInput().map { it.toCharArray() }
+    val r = (input.size - 1)
+    val c = input[0].size - 1
+
+    val startLocations = mapOf(
+//        "c" to (r / 2 to c / 2),
+//        "b" to (r to c / 2),
+//        "r" to (r / 2 to c),
+//        "t" to (0 to c / 2),
+//        "l" to (r / 2 to 0),
+        "tr" to (0 to c),
+        "tl" to (0 to 0),
+        "br" to (r to c),
+        "bl" to (r to 0),
+    )
+
+    val gardenPlots = mutableMapOf<String, Int>()
+
+    for (l in startLocations) {
+        gardenPlots[l.key] = draw(l.value, input)
+    }
+
+    val k = 26501365 / 65
+
+    val nSquares = k + 2 * (1..k - 2 step 2).sum()
+
+    val maxSteps = 26501365 % 65
+
+    for (l in startLocations) {
+        gardenPlots[l.key] = gardenPlots[l.key]!! + draw(l.value, input, maxSteps)
+    }
+
+    val totalGardenPlots = (nSquares * gardenPlots["c"]!! +
+            4 * gardenPlots["tr"]!! +
+            4 * gardenPlots["tl"]!! +
+            4 * gardenPlots["bl"]!! +
+            4 * gardenPlots["br"]!!)
+
+
+    totalGardenPlots.println()
 }
 
 fun main() {
