@@ -4,3 +4,4 @@ fun List<String>.toIntMatrix() =
     this.map { it.toCharArray().map { char -> char.toString().toInt() }.toIntArray() }.toTypedArray()
 
 fun Array<IntArray>.duplicate() = this.map { it.copyOf() }
+fun List<CharArray>.duplicate() = this.map { it.copyOf() }
