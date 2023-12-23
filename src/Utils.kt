@@ -53,6 +53,14 @@ fun String.setCharAt(i: Int, c: Char): String {
     }
 }
 
+fun String.setStringCharAt(i: Int, c: String): String {
+    return if (i in this.indices) {
+        this.toCharArray().also { it[i] = c[0] }.joinToString("")
+    } else {
+        this
+    }
+}
+
 fun <T> Sequence<T>.takeNextWhile(predicate: (T) -> Boolean): Sequence<T> = Sequence {
     val iter = iterator()
     var hasNext = iter.hasNext()
@@ -65,14 +73,6 @@ fun <T> Sequence<T>.takeNextWhile(predicate: (T) -> Boolean): Sequence<T> = Sequ
             }
         }
     }
-}
-
-data class Triple<out A, out B, out C>(
-    val first: A,
-    val second: B,
-    val third: C
-) : Serializable {
-    override fun toString(): String = "($first, $second, $third)"
 }
 
 typealias Point = Pair<Int, Int>

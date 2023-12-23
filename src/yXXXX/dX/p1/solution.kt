@@ -4,7 +4,7 @@ import println
 import readInput
 import runMeasure
 
-fun solve() {
+private fun solve() {
     val input = readInput()
 
     var res = 0L
