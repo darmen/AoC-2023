@@ -57,11 +57,11 @@ private fun solve() {
                 ctx.mkAdd(ctx.mkInt(h.z), ctx.mkMul(ctx.mkInt(h.vz), t))
             )
         )
+    }
 
-        if (solver.check() == Status.SATISFIABLE) {
-            solver.model.eval(ctx.mkAdd(x, ctx.mkAdd(y, z)), false)
-                .println()
-        }
+    if (solver.check() == Status.SATISFIABLE) {
+        solver.model.eval(ctx.mkAdd(x, ctx.mkAdd(y, z)), false)
+            .println()
     }
 }
 
