@@ -8,6 +8,9 @@ repositories {
 
 dependencies {
     implementation("io.github.p-org.solvers:z3:4.8.14-v5")
+    implementation("net.sf.jung:jung-algorithms:2.1.1")
+    implementation("net.sf.jung:jung-graph-impl:2.1.1")
+
 }
 
 sourceSets {
