@@ -1,11 +1,11 @@
-import java.io.Serializable
+
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLongArray
-import kotlin.Pair
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.system.measureTimeMillis
 
@@ -74,6 +74,12 @@ fun <T> Sequence<T>.takeNextWhile(predicate: (T) -> Boolean): Sequence<T> = Sequ
         }
     }
 }
+
+fun List<Long>.lcm(): Long = this.reduce { acc, num ->
+    abs(acc * num) / (acc to num).gcd()
+}
+
+fun Pair<Long, Long>.gcd(): Long = if (second == 0L) first else (second to first % second).gcd()
 
 typealias Point = Pair<Int, Int>
 typealias PointLong = Pair<Long, Long>

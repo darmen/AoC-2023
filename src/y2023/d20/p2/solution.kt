@@ -1,11 +1,16 @@
 package y2023.d20.p2
 
+import edu.uci.ics.jung.graph.DirectedSparseGraph
+import lcm
 import println
 import readInput
 import runMeasure
 
+
 fun solve() {
     val input = readInput()
+
+    val graph = DirectedSparseGraph<String, String>()
 
     val modules = mutableMapOf<String, Module>()
 
@@ -27,16 +32,28 @@ fun solve() {
         if (name.startsWith('%')) {
             modules[name.drop(1)] = FlipFlop(name.drop(1))
             outs[name.drop(1)] = conns
+            graph.addVertex(name.drop(1))
+            conns.forEach { c ->
+                graph.addEdge("${name.drop(1)} -> $c", name.drop(1), c)
+            }
         }
 
         if (name.startsWith('&')) {
             modules[name.drop(1)] = Conjunction(name.drop(1))
             outs[name.drop(1)] = conns
+            graph.addVertex(name.drop(1))
+            conns.forEach { c ->
+                graph.addEdge("${name.drop(1)} -> $c", name.drop(1), c)
+            }
         }
 
         if (name == "broadcaster") {
             modules[name] = Broadcaster()
             outs[name] = conns
+            graph.addVertex(name)
+            conns.forEach { c ->
+                graph.addEdge("$name -> $c", name, c)
+            }
         }
 
         sinks.addAll(conns.map { Sink(it) })
@@ -45,9 +62,8 @@ fun solve() {
 
     for (sink in sinks.filter { !modules.keys.contains(it.name) }) {
         modules[sink.name] = sink
+        graph.addVertex(sink.name)
     }
-    println()
-
 
     outs.forEach { out ->
         out.value.forEach {
@@ -56,6 +72,7 @@ fun solve() {
             }
 
             ins[it]!!.add(out.key)
+            graph.addEdge("${out.key} -> $it", out.key, it)
         }
     }
 
@@ -63,70 +80,72 @@ fun solve() {
         if (m is Conjunction) {
             m.input = ins[m.name]!!.map { modules[it]!! }.toMutableList()
         }
-    }
 
-    for (m in modules.values) {
         if (m !is Sink) {
             m.connected = outs[m.name]!!.map { modules[it]!! }.toMutableList()
         }
     }
 
-    val counts = mutableMapOf(
-        PulseType.LOW to 1000,
-        PulseType.HIGH to 0
-    )
+    val rxInput = ins["rx"]!! // in my input its "&kz"
+    val inputsOfInput = ins[rxInput.first()]!! // in my inputs it is &qq, &sq, &ls, &bg
+
+    // holds the number of "presses" when, as the result, the corresponding module sends high signal
+    val counts = inputsOfInput.associateWith { 0 }.toMutableMap()
 
     val m = modules["broadcaster"]!!
-    var k = 0
-    w@while (k < 6) {
-        k++
+    var k = 1
+    big@while (k <= 1_000_000) {
         val queue = mutableListOf(m to Pulse(PulseType.LOW))
         var i = 0
         while (i < queue.size) {
-            val item = queue[i]
-            for (c in item.first.connected) {
-                counts[item.second.type] = counts[item.second.type]!! + 1
-                println("${item.first.name} ${item.second.type} ${c.name}")
-                if (item.first.name == "rx") {
-                    println(k)
-                    break@w
+            val (module, receivedPulse) = queue[i]
+
+            for (c in module.connected) {
+                val newPulse =
+                    (if (c is Conjunction) c.function(module, receivedPulse)
+                    else c.function(receivedPulse)) ?: continue
+
+                if (c is Conjunction) {
+                    if (c.name in inputsOfInput) {
+                        if (newPulse.isHigh()) {
+                            counts[c.name] = k
+                            if (counts.all { it.value > 0 }) break@big
+                        }
+                    }
                 }
 
-                val np =
-                    (if (c is Conjunction) c.function(item.first, item.second)
-                    else c.function(item.second)) ?: continue
-
-                queue.add(c to np)
+                queue.add(c to newPulse)
             }
 
             i++
         }
-
-        println("")
+        k++
     }
 
-
-//    val res = ff(source, pulse)
-
-//    ((res.first + 1) * res.second * 1_000_000).println()
+    counts.values
+        .map { it.toLong() }
+        .lcm()
+        .println()
 }
 
 fun main() {
     runMeasure { solve() }
 }
 
-data class Pulse(var type: PulseType)
+data class Pulse(var type: PulseType) {
+    fun isHigh() = this.type == PulseType.HIGH
+}
 
 enum class PulseType {
     HIGH, LOW
 }
 
 class Broadcaster : Module("broadcaster", listOf()) {
-    override fun function(pulse: Pulse): Pulse? = pulse
+    override fun function(pulse: Pulse): Pulse = pulse
 }
 
 class Sink(override val name: String) : Module(name, listOf()) {
-    override fun function(pulse: Pulse): Pulse? = pulse
+    override fun function(pulse: Pulse): Pulse = pulse
 }
 
 abstract class Module(
@@ -177,7 +196,7 @@ class Conjunction(
             cache = input.associate { it.name to PulseType.LOW }.toMutableMap()
         }
 
-    fun function(source: Module, pulse: Pulse): Pulse? {
+    fun function(source: Module, pulse: Pulse): Pulse {
         cache[source.name] = pulse.type
 
         val type = if (cache.values.distinct().count() == 1) {
