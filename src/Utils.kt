@@ -1,4 +1,3 @@
-
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLongArray
@@ -84,3 +83,23 @@ fun Pair<Long, Long>.gcd(): Long = if (second == 0L) first else (second to first
 typealias Point = Pair<Int, Int>
 typealias PointLong = Pair<Long, Long>
 typealias IntList = List<Int>
+
+data class Point2D(val x: Int, val y: Int) {
+    fun cardinalNeighbors(): List<Point2D> {
+        return Direction.entries.map {
+            Point2D(x + it.d.first, y + it.d.second)
+        }
+    }
+}
+
+enum class Direction(val d: Pair<Int, Int>) {
+    LEFT(-1 to 0), RIGHT(1 to 0), UP(0 to -1), DOWN(0 to 1);
+
+    fun reversed(): Direction =
+        when (this) {
+            UP -> DOWN
+            DOWN -> UP
+            LEFT -> RIGHT
+            RIGHT -> LEFT
+        }
+}
