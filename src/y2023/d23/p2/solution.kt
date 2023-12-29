@@ -1,6 +1,7 @@
 package y2023.d23.p2
 
 import Point2D
+import isSafe
 import println
 import readInput
 import runMeasure
@@ -97,10 +98,6 @@ class Day23Part2(input: List<String>) {
         }
         return answer
     }
-
-
-    private fun Array<CharArray>.isSafe(point: Point2D): Boolean =
-        point.x in indices && point.y in 0..<this.first().size
 }
 
 

@@ -1,86 +1,61 @@
 package y2023.d21.p2
 
+import Point2D
+import isSafe
 import println
 import readInput
 import runMeasure
-import utils.duplicate
-import kotlin.math.ceil
 
 // Sketch – https://virtual-graph-paper.com/NzYxZWVhMTAwYzg4
-fun draw(input: List<CharArray>, maxSteps: Int = 65): Int {
-    val centers = mutableListOf((input.size - 1) / 2 to (input[0].size - 1) / 2)
+// Greatly inspired by https://github.com/tginsberg/, thanks!
+fun draw(input: Array<CharArray>, maxSteps: Int) = buildMap {
+    val center = Point2D((input[0].size - 1) / 2, (input.size - 1) / 2)
 
-    fun rec(input: List<CharArray>, centers: List<Pair<Int, Int>>): Pair<List<CharArray>, List<Pair<Int, Int>>> {
-        val newCenters = mutableListOf<Pair<Int, Int>>()
-        val inputResult = input.duplicate()
+    val queue = ArrayDeque<Pair<Point2D, Distance>>().apply {
+        add(center to 0)
+    }
 
-        for (c in centers) {
-            inputResult[c.first][c.second] = '.'
+    while (queue.isNotEmpty()) {
+        queue.removeFirst().let { (location, distance) ->
+            if (location !in this && distance <= maxSteps) {
+                this[location] = distance
 
-            for (d in Direction.entries) {
-                val (nr, nc) = c.first + d.delta.first to c.second + d.delta.second
-
-                if ((nr < 0 || nr > input.size - 1) || (nc < 0 || nc > input[0].size - 1)) continue
-                if (inputResult[nr][nc] == '#') continue
-
-                inputResult[nr][nc] = 'O'
-
-                if (!newCenters.contains(nr to nc)) {
-                    newCenters.add(nr to nc)
-                }
+                queue.addAll(
+                    location.cardinalNeighbors()
+                        .filter { it !in this }
+                        .filter { input.isSafe(it) }
+                        .filter { input[it.y][it.x] != '#' }
+                        .map { it to distance + 1 }
+                )
             }
         }
-
-//        inputResult.map { it.joinToString("") }.joinToString("\n").println()
-//        println("")
-
-        return inputResult to newCenters
     }
-
-    var rr = input to centers.toList()
-
-
-    for (j in 1..maxSteps) {
-        rr = rec(rr.first, rr.second)
-    }
-
-
-//    println(rr.second.size)
-    println("")
-    return rr.first.fold(0) { acc, chars -> acc + chars.count { it == 'O' } }
-
-//    return rr.second.size
 }
 
 /**
  * @see "y20023/d21/graph.png" for my visualized thoughts
  */
 fun solve() {
-    val input = readInput().map { it.toCharArray() }
+    val input = readInput().map { it.toCharArray() }.toTypedArray()
 
-    val countInSquare = draw(input, 130)
-    val countInDiamondPile = draw(input, 64)
-    val countInCornersTotal = countInSquare - countInDiamondPile
-    val countPerCorner = countInCornersTotal / 4
+    val desiredSteps = 26501365
+    val steps = draw(input, desiredSteps)
 
-    val desiredSteps = 26501365L
-    val totalSquares = desiredSteps / 131
-    val evenSquares = totalSquares * totalSquares
-    val oddSquares = (totalSquares + 1) * (totalSquares + 1)
+    val oddCorners = steps.count { it.value % 2 == 1 && it.value > 65 }.toLong()
+    val evenCorners = steps.count { it.value % 2 == 0 && it.value > 65 }.toLong()
+    val evenBlock = steps.values.count { it % 2 == 0 }.toLong()
+    val oddBlock = steps.values.count { it % 2 == 1 }.toLong()
+    val n: Long = ((desiredSteps.toLong() - (input.size / 2)) / input.size)
 
-    val evenCorners = 2 * totalSquares
-    val oddCorners = 2 * (totalSquares + 1)
+    val even: Long = n * n
+    val odd: Long = (n + 1) * (n + 1)
 
-    println(countInSquare * evenSquares + countInSquare * oddSquares + evenCorners * countPerCorner - oddCorners * countPerCorner + countInDiamondPile)
+    ((odd * oddBlock) + (even * evenBlock) - ((n + 1) * oddCorners) + (n * evenCorners))
+        .println()
 }
 
 fun main() {
     runMeasure { solve() }
 }
 
-typealias R = Int
-typealias C = Int
-
-private enum class Direction(val delta: Pair<R, C>) {
-    UP(-1 to 0), DOWN(1 to 0), LEFT(0 to -1), RIGHT(0 to 1), ;
-}
+typealias Distance = Int

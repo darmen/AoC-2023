@@ -103,3 +103,5 @@ enum class Direction(val d: Pair<Int, Int>) {
             RIGHT -> LEFT
         }
 }
+
+fun Array<CharArray>.isSafe(point: Point2D): Boolean = point.x in indices && point.y in 0..<this.first().size
