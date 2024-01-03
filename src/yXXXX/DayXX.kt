@@ -3,7 +3,7 @@ package yXXXX
 import println
 import readInput
 
-class DayXX(input: List<String>) {
+class DayXX(val input: List<String>) {
     fun solve1(): Any {
         return 1
     }
