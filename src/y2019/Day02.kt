@@ -12,13 +12,39 @@ class Day02(val input: List<String>) {
         }
     }.toTypedArray()
 
+    private val desiredOutput = 19690720
+
     fun solve1(): Any {
+        return runProgram(program.clone())
+    }
+
+    fun solve2(): Any {
+        for (noun in 0..99) {
+            for (verb in 0..99) {
+                val programClone = program.clone()
+                programClone[1] = noun
+                programClone[2] = verb
+
+                val result = runProgram(programClone)
+
+                if (result == desiredOutput) {
+                    return 100 * noun + verb
+                }
+            }
+        }
+
+        throw IllegalStateException("No solution")
+    }
+
+    private fun runProgram(program: Array<Int>): Int {
         var opCodePosition = 0
 
-        while (this.program[opCodePosition] != OpCode.HALT.code) {
-            val opCode = OpCode.fromCode(this.program[opCodePosition])
-            val operands = this.program[this.program[opCodePosition + 1]] to this.program[this.program[opCodePosition + 2]]
-            val resultStorage = this.program[opCodePosition + 3]
+        while (program[opCodePosition] != OpCode.HALT.code) {
+            val opCode = OpCode.fromCode(program[opCodePosition])
+
+            val operands = program[program[opCodePosition + 1]] to program[program[opCodePosition + 2]]
+
+            val resultAddress = program[opCodePosition + 3]
 
             val result = if (opCode == OpCode.ADD) {
                 operands.first + operands.second
@@ -26,19 +52,16 @@ class Day02(val input: List<String>) {
                 operands.first * operands.second
             }
 
-            this.program[resultStorage] = result
+            program[resultAddress] = result
 
             opCodePosition += 4
         }
 
-        return this.program[0]
+        return program[0]
+
     }
 
-    fun solve2(): Any {
-        TODO("Not implemented yet")
-    }
-
-    enum class OpCode(val code: Int) {
+    private enum class OpCode(val code: Int) {
         ADD(1), MUL(2), HALT(99);
 
         companion object {
