@@ -5,11 +5,11 @@ import readInput
 
 class DayXX(val input: List<String>) {
     fun solve1(): Any {
-        return 1
+        TODO("Not implemented yet")
     }
 
     fun solve2(): Any {
-        return 1
+        TODO("Not implemented yet")
     }
 }
 
