@@ -1,5 +1,6 @@
 package yXXXX
 
+import println
 import readInput
 
 class DayXX(input: List<String>) {
@@ -14,4 +15,7 @@ class DayXX(input: List<String>) {
 
 fun main() {
     val day = DayXX(readInput())
+
+    day.solve1().println()
+    day.solve2().println()
 }
