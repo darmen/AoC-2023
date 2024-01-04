@@ -85,10 +85,34 @@ typealias PointLong = Pair<Long, Long>
 typealias IntList = List<Int>
 
 data class Point2D(val x: Int, val y: Int) {
+    fun neighbors(): Set<Point2D> = buildSet {
+        this.addAll(cardinalNeighbors())
+
+        for (r in arrayOf(-1, 1)) {
+            for (c in arrayOf(-1, 1)) {
+                this.add(
+                    Point2D(x + r, y + c)
+                )
+            }
+        }
+    }
+
     fun cardinalNeighbors(): List<Point2D> {
         return Direction.entries.map {
             Point2D(x + it.d.first, y + it.d.second)
         }
+    }
+
+    fun manhattanDistance(other: Point2D): Int {
+        return abs(this.x - other.x) + abs(this.y + other.y)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Point2D) {
+            return this.x == other.x && this.y == other.y
+        }
+
+        return false
     }
 }
 
