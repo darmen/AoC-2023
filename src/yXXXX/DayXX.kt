@@ -2,6 +2,7 @@ package yXXXX
 
 import println
 import readInput
+import runMeasure
 
 class DayXX(val input: List<String>) {
     fun solve1(): Any {
@@ -14,8 +15,11 @@ class DayXX(val input: List<String>) {
 }
 
 fun main() {
-    val day = DayXX(readInput())
+    runMeasure {
+        val day = DayXX(readInput())
 
-    day.solve1().println()
-    day.solve2().println()
+        day.solve1().println()
+        day.solve2().println()
+    }
+
 }
