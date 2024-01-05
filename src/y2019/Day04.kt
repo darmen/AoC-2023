@@ -46,8 +46,38 @@ class Day04(val input: List<String>) {
         return result
     }
 
+    private fun adjacentDigitsNotPartOfLargerGroup(n: Int): Boolean {
+        val s = n.toString()
+        val groupLengths = mutableListOf<Int>()
+        var l = 1
+        for (i in 1..<s.length) {
+            val c = s[i]
+            val cp = s[i - 1]
+
+            if (c == cp) {
+                l++
+            } else {
+                groupLengths.add(l)
+                l = 1
+            }
+
+            if (i == s.length - 1) {
+                groupLengths.add(l)
+            }
+        }
+
+        return groupLengths.contains(2)
+    }
+
     fun solve2(): Any {
-        TODO("Not solved yet")
+        var result = 0
+        for (i in range) {
+            if (digitsNeverDecrease(i) && adjacentDigitsNotPartOfLargerGroup(i)) {
+                result++
+            }
+        }
+
+        return result
     }
 }
 
