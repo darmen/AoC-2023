@@ -15,10 +15,13 @@ class DayXX(val input: List<String>) {
 }
 
 fun main() {
-    runMeasure {
-        val day = DayXX(readInput())
+    val day = DayXX(readInput())
 
+    runMeasure {
         day.solve1().println()
+    }
+
+    runMeasure {
         day.solve2().println()
     }
 }
