@@ -5,11 +5,11 @@ import readInput
 import runMeasure
 
 class DayXX(val input: List<String>) {
-    fun solve1(): Any {
+    fun solve1(): Int {
         TODO("Not implemented yet")
     }
 
-    fun solve2(): Any {
+    fun solve2(): Int {
         TODO("Not implemented yet")
     }
 }
@@ -21,5 +21,4 @@ fun main() {
         day.solve1().println()
         day.solve2().println()
     }
-
 }
