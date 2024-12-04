@@ -129,3 +129,55 @@ enum class Direction(val d: Pair<Int, Int>) {
 }
 
 fun Array<CharArray>.isSafe(point: Point2D): Boolean = point.x in indices && point.y in 0..<this.first().size
+
+// Rotates list of strings to the left
+fun rotateLeft(matrix: List<String>): List<String> {
+    val rows = matrix.size
+    val cols = matrix[0].length
+    val rotated = MutableList(cols) { StringBuilder() }
+
+    for (col in cols - 1 downTo 0) {
+        for (row in 0 until rows) {
+            rotated[cols - 1 - col].append(matrix[row][col])
+        }
+    }
+
+    return rotated.map { it.toString() }
+}
+
+// Extracts diagonals (top-left to bottom-right and top-right to bottom-left) from a list of strings
+fun extractDiagonals(matrix: List<String>): List<String> {
+    val n = matrix.size
+    val diagonals = mutableListOf<String>()
+
+    for (d in 0 until 2 * n - 1) {
+        val diagonal = StringBuilder()
+        for (row in 0 until n) {
+            val col = d - row
+            if (col in 0 until n) {
+                diagonal.append(matrix[row][col])
+            }
+        }
+        diagonals.add(diagonal.toString())
+    }
+
+    for (d in 0 until 2 * n - 1) {
+        val diagonal = StringBuilder()
+        for (row in 0 until n) {
+            val col = row + d - (n - 1)
+            if (col in 0 until n) {
+                diagonal.append(matrix[row][col])
+            }
+        }
+        diagonals.add(diagonal.toString())
+    }
+
+    return diagonals
+}
+
+// Counts occurrences
+fun countOccurrences(text: String, substring: String): Int {
+    if (substring.isEmpty()) return 0
+    return text.windowed(substring.length, 1).count { it == substring }
+}
+
