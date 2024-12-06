@@ -84,7 +84,7 @@ typealias Point = Pair<Int, Int>
 typealias PointLong = Pair<Long, Long>
 typealias IntList = List<Int>
 
-data class Point2D(val x: Int, val y: Int) {
+data class Point2D(var x: Int, var y: Int) {
     fun neighbors(): Set<Point2D> = buildSet {
         this.addAll(cardinalNeighbors())
 
@@ -95,6 +95,15 @@ data class Point2D(val x: Int, val y: Int) {
                 )
             }
         }
+    }
+
+    fun oneStepTowardsDirection(direction: Direction) {
+        x += direction.d.first
+        y += direction.d.second
+    }
+
+    fun tap(direction: Direction): Point2D {
+        return Point2D(x + direction.d.first, y + direction.d.second)
     }
 
     fun cardinalNeighbors(): List<Point2D> {
@@ -125,6 +134,14 @@ enum class Direction(val d: Pair<Int, Int>) {
             DOWN -> UP
             LEFT -> RIGHT
             RIGHT -> LEFT
+        }
+
+    fun turnRight(): Direction =
+        when (this) {
+            UP -> RIGHT
+            DOWN -> LEFT
+            LEFT -> UP
+            RIGHT -> DOWN
         }
 }
 
