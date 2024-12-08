@@ -11,4 +11,10 @@ fun main() {
             .solvePart1()
             .println()
     }
+
+    runMeasure {
+        Day06(input)
+            .solvePart2()
+            .println()
+    }
 }

@@ -8,30 +8,39 @@ class Day06(input: List<String>) {
         row.mapIndexed { x, char -> Point2D(x, y) to char }
     }.toMap()
 
+    private val start = grid.entries.first { it.value == '^' }
+
     fun solvePart1(): Long {
-        return traverse()
+        return traverse().first.size.toLong()
     }
 
-    private fun traverse(): Long {
-        val start = grid.entries.first { it.value == '^' }
+    fun solvePart2(): Long {
+        return traverse()
+            .first.filter { it != start.key }
+            .count { stone -> traverse(stone).second }
+            .toLong()
+    }
+
+    private fun traverse(obstacle: Point2D? = null): Pair<Set<Point2D>, Boolean> {
 
         var direction = Direction.UP
 
         val seen = mutableSetOf<Pair<Point2D, Direction>>()
         var currentPoint = start.key
 
-        while (currentPoint in grid.keys && (currentPoint to direction) !in seen) {
+        while (currentPoint in grid && (currentPoint to direction) !in seen) {
             seen.add(currentPoint to direction)
 
             val nextPoint = currentPoint.tap(direction)
 
-            if (grid[nextPoint] == '#') {
+            if (grid[nextPoint] == '#' || nextPoint == obstacle) {
                 direction = direction.turnRight()
+            } else {
+                currentPoint = currentPoint.tap(direction)
             }
 
-            currentPoint = currentPoint.tap(direction)
         }
 
-        return seen.distinctBy { it.first }.size.toLong()
+        return seen.map { it.first }.toSet() to ((currentPoint to direction) in seen)
     }
 }
