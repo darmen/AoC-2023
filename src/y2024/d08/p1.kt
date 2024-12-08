@@ -24,7 +24,6 @@ private fun solve() {
 
     groupedAntennas.forEach { (_, l) ->
         val list = l.map { it.first }
-        list.println()
 
         for (a in list) {
             for (b in list) {
