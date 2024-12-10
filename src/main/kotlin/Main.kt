@@ -1,19 +1,19 @@
 import com.heydarmen.adventofcode.println
 import com.heydarmen.adventofcode.readInput
 import com.heydarmen.adventofcode.runMeasure
-import com.heydarmen.adventofcode.y2024.Day06
+import com.heydarmen.adventofcode.y2024.Day10
 
 fun main() {
     val input = readInput().lines()
 
     runMeasure {
-        Day06(input)
+        Day10(input)
             .solvePart1()
             .println()
     }
 
     runMeasure {
-        Day06(input)
+        Day10(input)
             .solvePart2()
             .println()
     }
