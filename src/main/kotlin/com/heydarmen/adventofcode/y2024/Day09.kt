@@ -2,115 +2,59 @@ package com.heydarmen.adventofcode.y2024
 
 class Day09(input: List<String>) {
     private val diskMap = input.first()
-    private val hash = mutableListOf<Int>()
-    private val blocks = mutableListOf<Block>()
+
+    private val files = mutableListOf<Block>()
+    private val gaps = mutableListOf<Block>()
 
     init {
-        var isFile = true
-        diskMap.forEachIndexed { index, c ->
-            blocks.add(
-                Block(
-                    pos = index,
-                    id = if (isFile) index / 2 else null,
-                    len = c.digitToInt(),
-                    isFile = isFile)
-            )
+        var pos = 0
 
-            isFile = !isFile
+        diskMap.map { it.digitToInt() }.forEachIndexed { index, len ->
+            (if (index % 2 == 0) files else gaps).add(Block(pos = pos, len = len, id = index / 2))
+            pos += len
         }
-        diskMap.forEachIndexed { index, c ->
-            if ((index + 1) % 2 == 0) {
-                hash.addAll(List(c.digitToInt()) { -1 })
-            } else {
-                hash.addAll(List(c.digitToInt()) { index / 2 })
-            }
-        }
-    }
-
-    fun solvePart2(): Long {
-        val files = blocks.filter { it.isFile }
-
-        for (file in files.reversed()) {
-            var gap: Block? = null
-
-            for (block in blocks) {
-                if (block.isFile) continue
-
-                if (block.pos <= file.pos && block.len >= file.len) {
-                    gap = block
-                    break
-                }
-            }
-
-             if (gap == null) {
-                continue
-            }
-
-            blocks[blocks.indexOf(file)] = Block(-1, null, file.len, false)
-
-            if (file.len < gap.len) {
-                blocks.add(blocks.indexOf(gap)+1, Block(-1, null, gap.len - file.len, false))
-            }
-
-            blocks[blocks.indexOf(gap)] = file
-
-        }
-
-        val s = mutableListOf<Int>()
-
-        blocks.forEach { b->
-            s.addAll(List(b.len){ if (b.isFile) b.id!!.toInt() else -1 })
-        }
-
-        var res = 0L
-
-        for (index in 0..s.lastIndex) {
-            val c = s[index]
-
-            if (c == -1) {
-                continue
-            }
-
-            res += index.toLong() * c.toLong()
-        }
-
-        return res
     }
 
     fun solvePart1(): Long {
-        outer@ for (i in 0..<hash.size) {
-            if (i >= hash.size) break@outer
+        val gaps = gaps.flatMap { s -> (0..<s.len).map { i -> Block(pos = s.pos + i, len = 1, id = s.id) } }
+        val files = files.flatMap { f -> (0..<f.len).map { i -> Block(pos = f.pos + i, len = 1, id = f.id) } }
 
-            val c = hash[i]
-
-            if (c != -1) {
-                continue@outer
-            }
-
-            var k = hash.size - 1
-            while (hash[k] == -1) {
-                k--
-                hash.removeLast()
-            }
-
-            if (k > i) {
-                hash[i] = hash[k]
-                hash.removeLast()
-            }
-        }
-
-        var res = 0L
-        hash.forEachIndexed { index, c ->
-            if (c == -1) {
-                return@forEachIndexed
-            }
-
-            res += index * c
-        }
-
-        return res
+        return calculate(gaps.toMutableList(), files.toMutableList())
     }
 
-    private data class Block(val pos: Int, val id: Int? = null, val len: Int, val isFile: Boolean)
+    fun solvePart2(): Long {
+        return calculate(gaps, files)
+    }
 
+    private fun calculate(gaps: MutableList<Block>, files: MutableList<Block>): Long {
+        for (i in files.indices.reversed()) {
+            val file = files[i]
+
+            for (j in gaps.indices) {
+                val gap = gaps[j]
+
+                if (gap.pos >= file.pos) break
+
+                if (gap.len >= file.len) {
+                    files[i] = Block(
+                        pos = gap.pos,
+                        len = file.len,
+                        id = file.id
+                    )
+
+                    gaps[j] = Block(
+                        pos = gap.pos + file.len,
+                        len = gap.len - file.len,
+                        id = gap.id
+                    )
+
+                    break
+                }
+            }
+        }
+
+        return files.sumOf { f -> (0..<f.len).sumOf { i -> f.id.toLong() * (f.pos + i) } }
+    }
+
+    private data class Block(val pos: Int, val len: Int, val id: Int)
 }
