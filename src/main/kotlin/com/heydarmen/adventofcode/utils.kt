@@ -125,6 +125,10 @@ data class Point2D(var x: Int, var y: Int) {
         return sqrt(((other.x - this.x) * (other.x - this.x) + (other.y - this.y) * (other.x - this.x)).toDouble())
     }
 
+    operator fun plus(other: Point2D): Point2D {
+        return Point2D(x + other.x, y + other.y)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other is Point2D) {
             return this.x == other.x && this.y == other.y
