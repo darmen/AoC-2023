@@ -8,6 +8,7 @@ import kotlin.io.path.readLines
 import kotlin.io.path.readText
 import kotlin.math.abs
 import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.system.measureTimeMillis
 
 /**
@@ -82,6 +83,7 @@ fun List<Long>.lcm(): Long = this.reduce { acc, num ->
 }
 
 fun Pair<Long, Long>.gcd(): Long = if (second == 0L) first else (second to first % second).gcd()
+fun Pair<Int, Int>.gcd(): Int = if (second == 0) first else (second to first % second).gcd()
 
 typealias Point = Pair<Int, Int>
 typealias PointLong = Pair<Long, Long>
@@ -117,6 +119,10 @@ data class Point2D(var x: Int, var y: Int) {
 
     fun manhattanDistance(other: Point2D): Int {
         return abs(this.x - other.x) + abs(this.y + other.y)
+    }
+
+    fun distance(other: Point2D): Double {
+        return sqrt(((other.x - this.x) * (other.x - this.x) + (other.y - this.y) * (other.x - this.x)).toDouble())
     }
 
     override fun equals(other: Any?): Boolean {
